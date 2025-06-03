@@ -1,5 +1,7 @@
+import Form from "../components/Form";
+
 function Account() {
-  return <div>Account...</div>;
+  return <Form />;
 }
 
 export default Account;
