@@ -1,7 +1,7 @@
 function Copyright() {
   return (
     <footer>
-      © Copyright 2025; All rights reserved. Created by{" "}
+      © Copyright {new Date().getFullYear()}; All rights reserved. Created by{" "}
       <a
         href="https://github.com/AmirabasNasirzadeh"
         target="_blank"
