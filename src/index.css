@@ -250,6 +250,7 @@ footer a:hover {
   cursor: pointer;
   transition: background-color 0.2s;
   margin-bottom: 2.4rem;
+  font-family: inherit;
 }
 
 .form__btn:hover {
@@ -265,4 +266,16 @@ footer a:hover {
 
 .form__situation:hover {
   color: var(--secondary__color);
+}
+
+.form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.2rem;
+}
+
+.form__btn--money {
+  padding: 0 1.2rem;
+  height: 4.8rem;
+  align-self: end;
 }
