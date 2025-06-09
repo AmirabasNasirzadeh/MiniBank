@@ -17,9 +17,9 @@ const accountSlice = createSlice({
       const user = state.accounts.find(
         (acc) => acc.username === action.payload.username
       );
-      // Deny login if user doesn't exist or password is wrong
+
       if (!user || user.password !== action.payload.password) return;
-      state.currentUser = user; // Store the full user object
+      state.currentUser = { ...user };
       state.isLoggedin = true;
     },
     signup(state, action) {
@@ -28,21 +28,88 @@ const accountSlice = createSlice({
       )
         return;
 
-      state.currentUser = {
+      const newUser = {
         username: action.payload.username,
         password: action.payload.password,
         balance: 0,
         loan: 0,
       };
-      state.accounts.push(state.currentUser);
+      state.accounts.push(newUser);
+      state.currentUser = { ...newUser };
       state.isLoggedin = true;
     },
     logout(state) {
-      state.currentUser = null;
       state.isLoggedin = false;
+      state.currentUser = null;
+    },
+    deleteAccount(state) {
+      state.isLoggedin = false;
+      state.accounts = state.accounts.filter(
+        (user) => user.username !== state.currentUser.username
+      );
+      state.currentUser = null;
+    },
+    transfer(state, action) {
+      if (action.payload.username === state.currentUser.username) return;
+      if (state.currentUser.balance < action.payload.amount) return;
+
+      state.accounts = state.accounts.map((user) => {
+        if (user.username === action.payload.username) {
+          return { ...user, balance: user.balance + action.payload.amount };
+        }
+        if (user.username === state.currentUser.username) {
+          return { ...user, balance: user.balance - action.payload.amount };
+        }
+        return user;
+      });
+
+      state.currentUser = {
+        ...state.accounts.find(
+          (u) => u.username === state.currentUser.username
+        ),
+      };
+    },
+    requestLoan(state, action) {
+      state.accounts = state.accounts.map((user) =>
+        user.username === state.currentUser.username
+          ? {
+              ...user,
+              balance: user.balance + action.payload,
+              loan: user.loan + action.payload,
+            }
+          : user
+      );
+
+      state.currentUser = {
+        ...state.accounts.find(
+          (u) => u.username === state.currentUser.username
+        ),
+      };
+    },
+    payLoan(state) {
+      if (state.currentUser.balance < state.currentUser.loan) return;
+
+      state.accounts = state.accounts.map((user) =>
+        user.username === state.currentUser.username
+          ? { ...user, balance: user.balance - user.loan, loan: 0 }
+          : user
+      );
+      state.currentUser = {
+        ...state.accounts.find(
+          (u) => u.username === state.currentUser.username
+        ),
+      };
     },
   },
 });
 
-export const { login, signup, logout } = accountSlice.actions;
+export const {
+  login,
+  signup,
+  logout,
+  deleteAccount,
+  transfer,
+  requestLoan,
+  payLoan,
+} = accountSlice.actions;
 export default accountSlice.reducer;
