@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   accounts: [
-    { username: "Amir", password: "123", balance: 50, loan: 10 },
-    { username: "Ali", password: "456", balance: 100, loan: 25 },
+    { username: "amir", password: "123", balance: 50, loan: 10 },
+    { username: "ali", password: "456", balance: 100, loan: 25 },
   ],
   currentUser: null,
   isLoggedin: false,
@@ -18,15 +18,20 @@ const accountSlice = createSlice({
         (acc) => acc.username === action.payload.username
       );
 
-      if (!user || user.password !== action.payload.password) return;
+      if (!user || user.password !== action.payload.password) {
+        alert("Invalid username or password!");
+        return;
+      }
       state.currentUser = { ...user };
       state.isLoggedin = true;
     },
     signup(state, action) {
       if (
         state.accounts.some((acc) => acc.username === action.payload.username)
-      )
+      ) {
+        alert("An account exist with the same username!");
         return;
+      }
 
       const newUser = {
         username: action.payload.username,
@@ -41,6 +46,7 @@ const accountSlice = createSlice({
     logout(state) {
       state.isLoggedin = false;
       state.currentUser = null;
+      alert("You logged out from your account!");
     },
     deleteAccount(state) {
       state.isLoggedin = false;
@@ -48,17 +54,24 @@ const accountSlice = createSlice({
         (user) => user.username !== state.currentUser.username
       );
       state.currentUser = null;
+      alert("You deleted your account!");
     },
     transfer(state, action) {
-      if (action.payload.username === state.currentUser.username) return;
-      if (state.currentUser.balance < action.payload.amount) return;
+      if (action.payload.username === state.currentUser.username) {
+        alert("You can't transfer money to your own account!");
+        return;
+      }
+      if (state.currentUser.balance < action.payload.amount) {
+        alert("You don't have enough money!");
+        return;
+      }
 
       state.accounts = state.accounts.map((user) => {
         if (user.username === action.payload.username) {
-          return { ...user, balance: user.balance + action.payload.amount };
+          return { ...user, balance: +user.balance + +action.payload.amount };
         }
         if (user.username === state.currentUser.username) {
-          return { ...user, balance: user.balance - action.payload.amount };
+          return { ...user, balance: +user.balance - +action.payload.amount };
         }
         return user;
       });
@@ -74,8 +87,8 @@ const accountSlice = createSlice({
         user.username === state.currentUser.username
           ? {
               ...user,
-              balance: user.balance + action.payload,
-              loan: user.loan + action.payload,
+              balance: +user.balance + +action.payload,
+              loan: +user.loan + +action.payload,
             }
           : user
       );
@@ -87,11 +100,14 @@ const accountSlice = createSlice({
       };
     },
     payLoan(state) {
-      if (state.currentUser.balance < state.currentUser.loan) return;
+      if (state.currentUser.balance < state.currentUser.loan) {
+        alert("You don't have enough money to pay your loan!");
+        return;
+      }
 
       state.accounts = state.accounts.map((user) =>
         user.username === state.currentUser.username
-          ? { ...user, balance: user.balance - user.loan, loan: 0 }
+          ? { ...user, balance: +user.balance - +user.loan, loan: 0 }
           : user
       );
       state.currentUser = {
