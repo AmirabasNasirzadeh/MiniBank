@@ -20,5 +20,3 @@ MiniBank is a small but functional banking web application built with **React.js
 - **State Management**: Redux Toolkit
 - **Routing**: React Router (SPA)
 - **Persistence**: Browser localStorage
-
-> This project is not ready yet, i'm working on it (:

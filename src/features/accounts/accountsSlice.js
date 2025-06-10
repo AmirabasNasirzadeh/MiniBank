@@ -1,6 +1,29 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
+// Helper functions for localStorage
+const loadFromLocalStorage = () => {
+  try {
+    const serializedState = localStorage.getItem("bankAppData");
+    if (serializedState === null) {
+      return undefined;
+    }
+    return JSON.parse(serializedState);
+  } catch (e) {
+    console.warn("Failed to load state from localStorage", e);
+    return undefined;
+  }
+};
+
+const saveToLocalStorage = (state) => {
+  try {
+    const serializedState = JSON.stringify(state);
+    localStorage.setItem("bankAppData", serializedState);
+  } catch (e) {
+    console.warn("Failed to save state to localStorage", e);
+  }
+};
+
+const initialState = loadFromLocalStorage() || {
   accounts: [
     { username: "amir", password: "123", balance: 50, loan: 10 },
     { username: "ali", password: "456", balance: 100, loan: 25 },
@@ -24,6 +47,7 @@ const accountSlice = createSlice({
       }
       state.currentUser = { ...user };
       state.isLoggedin = true;
+      saveToLocalStorage(state);
     },
     signup(state, action) {
       if (
@@ -42,10 +66,12 @@ const accountSlice = createSlice({
       state.accounts.push(newUser);
       state.currentUser = { ...newUser };
       state.isLoggedin = true;
+      saveToLocalStorage(state);
     },
     logout(state) {
       state.isLoggedin = false;
       state.currentUser = null;
+      saveToLocalStorage(state);
       alert("You logged out from your account!");
     },
     deleteAccount(state) {
@@ -54,6 +80,7 @@ const accountSlice = createSlice({
         (user) => user.username !== state.currentUser.username
       );
       state.currentUser = null;
+      saveToLocalStorage(state);
       alert("You deleted your account!");
     },
     transfer(state, action) {
@@ -81,6 +108,7 @@ const accountSlice = createSlice({
           (u) => u.username === state.currentUser.username
         ),
       };
+      saveToLocalStorage(state);
     },
     requestLoan(state, action) {
       state.accounts = state.accounts.map((user) =>
@@ -98,6 +126,7 @@ const accountSlice = createSlice({
           (u) => u.username === state.currentUser.username
         ),
       };
+      saveToLocalStorage(state);
     },
     payLoan(state) {
       if (state.currentUser.balance < state.currentUser.loan) {
@@ -115,6 +144,7 @@ const accountSlice = createSlice({
           (u) => u.username === state.currentUser.username
         ),
       };
+      saveToLocalStorage(state);
     },
   },
 });
